@@ -1,0 +1,78 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { motion } from "framer-motion";
+
+export default function Q1ThemeSentimentSlide() {
+  const data = [
+    { theme: "Project Work & Staffing", share: 34, sentiment: 0.33, takeaway: "Largest topic — positive but mixed; focus on workload balance and creative fit." },
+    { theme: "Integration & Change", share: 32, sentiment: 0.59, takeaway: "Most positive — transition to CBRE seen as well-managed and energizing." },
+    { theme: "Onboarding & Training", share: 14, sentiment: 0.28, takeaway: "New hires value structure; streamline how-to guides and bootcamp refreshers." },
+    { theme: "Culture & Team Community", share: 12, sentiment: 0.29, takeaway: "Warm team culture; nurture office events and informal connection points." },
+    { theme: "Benefits & Compensation", share: 8, sentiment: 0.30, takeaway: "Stable, but transparency on timelines and bonuses still matters." }
+  ];
+
+  // Variations of the orange color (#E04403) based on sentiment intensity
+  const getColor = (sentiment) => {
+    if (sentiment >= 0.5) return "#E04403"; // strong positive
+    if (sentiment >= 0.3) return "#F15A22"; // medium bright orange
+    if (sentiment >= 0.1) return "#F47C43"; // lighter orange
+    if (sentiment >= -0.1) return "#F79E65"; // pale orange
+    if (sentiment >= -0.3) return "#FABF88"; // soft peach
+    return "#FCD2A3"; // lightest orange tint (negative/low sentiment)
+  };
+
+  return (
+    <div className="p-6 bg-white rounded-2xl shadow-md max-w-5xl mx-auto">
+      <motion.h2 
+        initial={{ opacity: 0, y: -10 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        className="text-2xl font-semibold text-gray-800 mb-2"
+      >
+        Q1: Theme Prevalence (color = sentiment)
+      </motion.h2>
+      <p className="text-gray-600 mb-6">Share of verbatim comments by theme — deeper orange = stronger positive sentiment.</p>
+
+      <div className="h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} layout="vertical" margin={{ top: 10, right: 40, left: 140, bottom: 10 }}>
+            <XAxis type="number" domain={[0, 40]} tickFormatter={(v) => `${v}%`} />
+            <YAxis type="category" dataKey="theme" tick={{ fontSize: 13 }} width={160} />
+            <Tooltip cursor={{ fill: "#f9f9f9" }} formatter={(value, name) => name === "share" ? `${value}%` : value} />
+            <Bar dataKey="share" radius={[4, 4, 4, 4]}>
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={getColor(entry.sentiment)} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Clearer color legend */}
+      <div className="flex flex-col items-center mt-6 text-sm text-gray-700">
+        <div className="flex items-center gap-2 mb-1">
+          <span>Sentiment Scale:</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">Negative / Low</span>
+          <div className="w-40 h-4 rounded-full bg-gradient-to-r from-[#FCD2A3] via-[#F47C43] to-[#E04403]"></div>
+          <span className="text-xs text-gray-500">Positive / Strong</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+        {data.map((d, i) => (
+          <Card key={i} className="border-none shadow-sm bg-gray-50">
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-gray-800 mb-1">{d.theme}</h3>
+              <p className="text-sm text-gray-600 leading-snug">{d.takeaway}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="mt-6 text-gray-700 text-sm italic text-center">
+        Positive sentiment dominates — especially around integration success — while project workload and onboarding clarity are the next levers for impact.
+      </div>
+    </div>
+  );
+}
